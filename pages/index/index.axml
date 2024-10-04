@@ -1,0 +1,8 @@
+
+<view class="blank-page">
+  <view>
+    <text>{{textStore.name}}</text>
+  </view>
+  <button onTap="handerClick" size="default" type="primary">setNewName</button>
+</view>
+ 
