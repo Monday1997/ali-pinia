@@ -20,9 +20,14 @@ export function defineStore(storeName, config) {
     }
     return new Proxy(data, {
       set(target, key, value, receiver) {
+        const oldValue = Reflect.get(target,key,receiver)
+        if(oldValue ===value){
+          return true
+        }
         Reflect.set(target, key, value, receiver);
         if(easyWatcher[key]){
-          easyWatcher[key].array.forEach(fn => {
+          easyWatcher[key].forEach(fn => {
+            fn.dirty = true
             fn()
           });
         }
@@ -42,19 +47,17 @@ export function defineStore(storeName, config) {
         const result = Reflect.get(target, key, receiver);
          // 收集当前getter中使用了的依赖
         if(setGetter){
-          if(easyWatcher[key]){
+          if(!easyWatcher[key]){
             easyWatcher[key] = new Set([setGetter])
           }else{
             let setData = easyWatcher[key]
             setData.add(setGetter)
           }
         }
+        
         if (typeof result === 'function' && target.hasOwnProperty(key)) {
-          if(key === 'name'){
-            console.log('123')
-          }
-          setGetter = result.bind(target)
-          const resultData = result.call(target);
+          setGetter = result
+          const resultData = result()
           setGetter = false
           return resultData;
         }
@@ -78,7 +81,16 @@ export function defineStore(storeName, config) {
       this[key] = state[key];
     }
     for (let key in getter) {
-      this[key] = getter[key];
+      const fn = function(){
+        if(fn.dirty){
+          fn.dirty = false
+          fn.value =  getter[key].call(stateReadOnly)
+        }
+        return fn.value
+      }
+      fn.dirty = true
+      fn.value = null
+      this[key] = fn
     }
   }
   const action = actionData ? createAction(actionData) : {};

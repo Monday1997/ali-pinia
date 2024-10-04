@@ -14,7 +14,6 @@ export const useTest = defineStore('textStore',{
   },
   action:{
     setFirstName(data){
-      console.log('data',this)
       this.firstName = data
     }
   },
