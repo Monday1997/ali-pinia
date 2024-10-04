@@ -11,6 +11,7 @@ export function defineStore(storeName, config) {
   const { state: stateFn, action: actionData, getter: getterData } = config;
   const state = typeof stateFn === 'function' ? stateFn() : stateFn;
   const easyWatcher = {}
+  const bucketWatcher = new WeakMap()
   let setGetter = false
   function reactive(data) {
     for (let key in data) {
@@ -25,11 +26,13 @@ export function defineStore(storeName, config) {
           return true
         }
         Reflect.set(target, key, value, receiver);
-        if(easyWatcher[key]){
-          easyWatcher[key].forEach(fn => {
+        const depsMap = bucketWatcher.get(target) || new Map()
+        const deps = depsMap.get(key)
+        if(deps){
+          deps.forEach(fn=>{
             fn.dirty = true
             fn()
-          });
+          })
         }
         debounceResetStore()
         return true;
@@ -47,21 +50,23 @@ export function defineStore(storeName, config) {
         const result = Reflect.get(target, key, receiver);
          // 收集当前getter中使用了的依赖
         if(setGetter){
-          if(!easyWatcher[key]){
-            easyWatcher[key] = new Set([setGetter])
-          }else{
-            let setData = easyWatcher[key]
-            setData.add(setGetter)
+          let depsMap = bucketWatcher.get(target)
+          if(!depsMap){
+            bucketWatcher.set(target,(depsMap = new Map()))
           }
+          let deps = depsMap.get(key)
+          if(!deps){
+             depsMap.set(key,(deps = new Set()))
+          }
+          deps.add(setGetter)
         }
-        
+       
         if (typeof result === 'function' && target.hasOwnProperty(key)) {
           setGetter = result
           const resultData = result()
           setGetter = false
           return resultData;
         }
-        
         return result;
       },
       set() {
@@ -121,7 +126,6 @@ export function defineStore(storeName, config) {
     return data;
   }
   const resetStore = (instance?) => {
-
     // 挂载数据到页面
     if (instance) {
       instance.setData({
