@@ -1,0 +1,4 @@
+此工具用法类似于vue的工具pinia
+store目录下可使用defineStpre创建需要的modules.ts
+拿到返回值在外部运行即可使用相关操作
+具体可见文件package/index
