@@ -1,10 +1,10 @@
 
 <view class="blank-page">
   <view>
-    <text>{{textStore.name}}</text>
-    <text>{{textStore.name}}</text>
-    <text>{{textStore.name}}</text>
-    <text>{{textStore.name}}</text>
+    <view>{{textStore.name}}</view>
+    <view>{{textStore.name}}</view>
+    <view>{{textStore.name}}</view>
+    <view>{{textStore.name}}</view>
   </view>
   <button onTap="handerClick" size="default" type="primary">setNewName</button>
 </view>

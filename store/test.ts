@@ -1,4 +1,4 @@
-import {defineStore} from '../index'
+import {defineStore} from '/utils/store'
 export const useTest = defineStore('textStore',{
   state(){
     return {

@@ -10,7 +10,6 @@ export function defineStore(storeName, config) {
   const pageMap = new Map();
   const { state: stateFn, action: actionData, getter: getterData } = config;
   const state = typeof stateFn === 'function' ? stateFn() : stateFn;
-  const easyWatcher = {}
   const bucketWatcher = new WeakMap()
   let setGetter = false
   function reactive(data) {

@@ -1,5 +1,5 @@
 
-import {useTest} from '/store/module/test'
+import {useTest} from '/store/test'
 let testStore =  null
 
 
